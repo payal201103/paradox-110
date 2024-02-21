@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: rgb(128, 201, 230);
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            max-width: 400px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #newTodoInput {
+            width: calc(100% - 40px);
+            padding: 10px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        #addTodoBtn {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .todo-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .todo-text {
+            flex-grow: 1;
+        }
+
+        .todo-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .btn {
+            margin-left: 5px;
+        }
+
+        .btn i {
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Todo List</h1>
+        <div class="add-todo">
+            <input type="text" id="newTodoInput" placeholder="Add new work">
+            <button id="addTodoBtn">Add</button>
+        </div>
+        <ul id="todoList"></ul>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const newTodoInput = document.getElementById('newTodoInput');
+            const addTodoBtn = document.getElementById('addTodoBtn');
+            const todoList = document.getElementById('todoList');
+            let todos = JSON.parse(localStorage.getItem('todos')) || [];
+
+            function renderTodos() {
+                todoList.innerHTML = '';
+                todos.forEach((todo, index) => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'todo-item';
+                    listItem.innerHTML = `
+                        <span class="todo-text">${todo}</span>
+                        <div class="todo-actions">
+                            <button class="btn btn-warning edit-todo" data-index="${index}"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-danger delete-todo" data-index="${index}"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+                    todoList.appendChild(listItem);
+                });
+                localStorage.setItem('todos', JSON.stringify(todos));
+            }
+
+            function addTodo() {
+                const todoText = newTodoInput.value.trim();
+                if (todoText !== '') {
+                    todos.push(todoText);
+                    renderTodos();
+                    newTodoInput.value = '';
+                }
+            }
+
+            function deleteTodo(index) {
+                todos.splice(index, 1);
+                renderTodos();
+            }
+
+            function editTodo(index) {
+                const newText = prompt('Edit Todo:', todos[index]);
+                if (newText !== null) {
+                    todos[index] = newText.trim();
+                    renderTodos();
+                }
+            }
+
+            addTodoBtn.addEventListener('click', addTodo);
+            todoList.addEventListener('click', function (event) {
+                const target = event.target;
+                if (target.classList.contains('delete-todo')) {
+                    const index = parseInt(target.getAttribute('data-index'));
+                    deleteTodo(index);
+                } else if (target.classList.contains('edit-todo')) {
+                    const index = parseInt(target.getAttribute('data-index'));
+                    editTodo(index);
+                }
+            });
+
+            renderTodos();
+        });
+    </script>
+</body>
+</html>
